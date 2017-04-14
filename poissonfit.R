@@ -16,13 +16,26 @@ mod.null$aic
 mod.null$coefficients
 
 library(data.table)
-library(MASS)
-data <- fread("onepoint.txt")
-x <- data[, V1]
+library(fitdistrplus)
+library(ggplot2)
+library(foreach)
 
-poissonFit <- fitdistr(x, densfun="poisson")
+data <- fread("onepoint.txt")
+setnames(data, "V1", "x")
+
+ggplot(data, aes(x=x)) + geom_bar()
+
+poissonFit <- poissonFit <- fitdist(x, "pois")
 ppois(7, poissonFit$estimate)
+
+data[, mean(x)/var(x)]
+
+bootstrapDispersion <- foreach(i = 1 : 100, .combine = "c" ) %do% {
+  tmp <- rpois(n=nrow(data), lambda = poissonFit$estimate)
+  mean(tmp) / var(tmp)
+}
 
 # mod.null$fitted.values should be the same as poissonFit$estimate
 
+negbinFit <- fitdist(x, "nbinom")
 
