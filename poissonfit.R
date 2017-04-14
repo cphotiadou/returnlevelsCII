@@ -8,9 +8,21 @@ ilat <- ncvar_get(ncr20, "latitude")
 
 xpoint <- var[209,90,]
 
-#' Null model - i.e. data is poisson distributed, 
-#' independent of variables. 
+#' Null model - i.e. data is poisson distributed,
+#' independent of variables.
 #'offset = NULL as assumed dispersion coefficient =1
 mod.null <- glm(xpoint~1,family = "poisson", offset = NULL)
 mod.null$aic
 mod.null$coefficients
+
+library(data.table)
+library(MASS)
+data <- fread("onepoint.txt")
+x <- data[, V1]
+
+poissonFit <- fitdistr(x, densfun="poisson")
+ppois(7, poissonFit$estimate)
+
+# mod.null$fitted.values should be the same as poissonFit$estimate
+
+
