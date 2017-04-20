@@ -25,12 +25,12 @@ setnames(data, "V1", "x")
 
 ggplot(data, aes(x=x)) + geom_bar()
 
-poissonFit <- poissonFit <- fitdist(x, "pois")
+poissonFit <- fitdist(data$x, "pois")
 ppois(7, poissonFit$estimate)
 
 data[, mean(x)/var(x)]
 
-bootstrapDispersion <- foreach(i = 1 : 100, .combine = "c" ) %do% {
+bootstrapDispersion <- foreach(i = 1 : 1000, .combine = "c" ) %do% {
   tmp <- rpois(n=nrow(data), lambda = poissonFit$estimate)
   mean(tmp) / var(tmp)
 }
@@ -39,3 +39,26 @@ bootstrapDispersion <- foreach(i = 1 : 100, .combine = "c" ) %do% {
 
 negbinFit <- fitdist(x, "nbinom")
 
+# Where is the data coming from (lat, lon)?
+# Is there some persistency in the underlying daily precip data, e.g. 
+# consequtive exceedances of 20mm? (For NL 4 days on averages seems quite high.)
+
+# over dispersion -> maybe binomial distribution
+nDaysSeason <- 30+31+30+31+31+30
+binFit <- fitdist(data$x, "binom", fix.arg=list(size=nDaysSeason), start=list(prob=0.01))
+
+
+
+
+plot(seq(0, 0.99, by = 0.01), qbinom(seq(0, 0.99, by = 0.01), size = nDaysSeason, prob = 0.021))
+pbinom(1, size = nDaysSeason, prob = 0.021)
+
+1 - pbinom(6, size = nDaysSeason, prob = 0.021)
+pbinom(1, size = nDaysSeason, prob = 0.021)
+1 - pbinom(7, size = nDaysSeason, prob = 0.021)
+
+
+## continuous distribution with grouped likelihood
+# normFit <- fitdist(data$x, "norm")
+
+# beta?
